@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-[Inter]">
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full p-2 border rounded">
+                <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded">
+                <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="hidden min-h-screen">
+        <nav class="bg-blue-600 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-bold">Admin Panel</h1>
+                <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded">Logout</button>
+            </div>
+        </nav>
+        <div class="container mx-auto p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onclick="showAdminSection('deposit')" class="p-4 bg-green-500 text-white rounded">Deposit</button>
+                <button onclick="showAdminSection('withdrawal')" class="p-4 bg-yellow-500 text-white rounded">Withdrawal</button>
+                <button onclick="showAdminSection('payment')" class="p-4 bg-purple-500 text-white rounded">Payment</button>
+                <button onclick="showAdminSection('createId')" class="p-4 bg-blue-500 text-white rounded">Create ID</button>
+            </div>
+            
+            <!-- Create ID Section -->
+            <div id="createIdSection" class="hidden mt-8 bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Create New User</h2>
+                <div class="space-y-4">
+                    <input type="text" id="newUsername" placeholder="Username" class="w-full p-2 border rounded">
+                    <input type="text" id="newSite" placeholder="Site" class="w-full p-2 border rounded">
+                    <input type="password" id="newPassword" placeholder="Password" class="w-full p-2 border rounded">
+                    <button onclick="createUser()" class="bg-blue-600 text-white px-4 py-2 rounded">Create User</button>
+                </div>
+            </div>
+
+            <!-- Deposit Management Section -->
+            <div id="depositSection" class="hidden mt-8">
+                <h2 class="text-xl font-bold mb-4">Deposit Requests</h2>
+                <div id="depositRequests" class="space-y-4"></div>
+            </div>
+
+            <!-- Withdrawal Management Section -->
+            <div id="withdrawalSection" class="hidden mt-8">
+                <h2 class="text-xl font-bold mb-4">Withdrawal Requests</h2>
+                <div id="withdrawalRequests" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Panel -->
+    <div id="customerPanel" class="hidden min-h-screen">
+        <nav class="bg-blue-600 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-bold">Customer Panel</h1>
+                <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded">Logout</button>
+            </div>
+        </nav>
+        <div class="container mx-auto p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onclick="showCustomerSection('deposit')" class="p-4 bg-green-500 text-white rounded">Deposit</button>
+                <button onclick="showCustomerSection('withdrawal')" class="p-4 bg-yellow-500 text-white rounded">Withdrawal</button>
+                <button onclick="showCustomerSection('payment')" class="p-4 bg-purple-500 text-white rounded">Payment</button>
+                <button onclick="showCustomerSection('addBank')" class="p-4 bg-blue-500 text-white rounded">Add Bank</button>
+            </div>
+
+            <!-- Deposit Section -->
+            <div id="customerDepositSection" class="hidden mt-8 bg-white p-6 rounded-lg shadow">
+                <div class="flex mb-4 space-x-4">
+                    <button onclick="setPaymentMode('qr')" class="flex-1 p-2 bg-gray-200 rounded">QR Code</button>
+                    <button onclick="setPaymentMode('upi')" class="flex-1 p-2 bg-gray-200 rounded">UPI</button>
+                    <button onclick="setPaymentMode('bank')" class="flex-1 p-2 bg-gray-200 rounded">Bank Transfer</button>
+                </div>
+                <div class="space-y-4">
+                    <input type="file" id="screenshot" class="w-full p-2 border rounded" accept="image/*">
+                    <input type="text" id="transactionId" placeholder="Transaction ID" class="w-full p-2 border rounded">
+                    <input type="text" id="userId" placeholder="User ID" class="w-full p-2 border rounded">
+                    <button onclick="submitDeposit()" class="bg-green-600 text-white px-4 py-2 rounded">Submit Deposit</button>
+                </div>
+            </div>
+
+            <!-- Withdrawal Section -->
+            <div id="customerWithdrawalSection" class="hidden mt-8 bg-white p-6 rounded-lg shadow">
+                <div class="space-y-4">
+                    <input type="number" id="withdrawalAmount" placeholder="Amount" class="w-full p-2 border rounded">
+                    <button onclick="requestWithdrawal()" class="bg-yellow-600 text-white px-4 py-2 rounded">Request Withdrawal</button>
+                </div>
+            </div>
+
+            <!-- Add Bank Section -->
+            <div id="addBankSection" class="hidden mt-8 bg-white p-6 rounded-lg shadow">
+                <div class="space-y-4">
+                    <input type="text" id="accountName" placeholder="Account Holder Name" class="w-full p-2 border rounded">
+                    <input type="text" id="accountNumber" placeholder="Account Number" class="w-full p-2 border rounded">
+                    <input type="text" id="bankName" placeholder="Bank Name" class="w-full p-2 border rounded">
+                    <input type="text" id="ifscCode" placeholder="IFSC Code" class="w-full p-2 border rounded">
+                    <button onclick="addBank()" class="bg-blue-600 text-white px-4 py-2 rounded">Add Bank Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated database
+        let users = [
+            { username: 'admin', password: 'admin123', role: 'admin' }
+        ];
+        let deposits = [];
+        let withdrawals = [];
+        let currentUser = null;
+        let currentPaymentMode = 'qr';
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginPage').classList.add('hidden');
+                if (user.role === 'admin') {
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                } else {
+                    document.getElementById('customerPanel').classList.remove('hidden');
+                }
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('customerPanel').classList.add('hidden');
+        }
+
+        function showAdminSection(section) {
+            ['deposit', 'withdrawal', 'payment', 'createId'].forEach(s => {
+                document.getElementById(s + 'Section').classList.add('hidden');
+            });
+            document.getElementById(section + 'Section').classList.remove('hidden');
+        }
+
+        function showCustomerSection(section) {
+            ['customerDeposit', 'customerWithdrawal', 'payment', 'addBank'].forEach(s => {
+                document.getElementById(s + 'Section').classList.add('hidden');
+            });
+            document.getElementById(section === 'deposit' ? 'customerDepositSection' : 
+                                 section === 'withdrawal' ? 'customerWithdrawalSection' : 
+                                 'addBankSection').classList.remove('hidden');
+        }
+
+        function createUser() {
+            const username = document.getElementById('newUsername').value;
+            const site = document.getElementById('newSite').value;
+            const password = document.getElementById('newPassword').value;
+
+            if (username && site && password) {
+                users.push({
+                    username,
+                    password,
+                    site,
+                    role: 'customer'
+                });
+                alert('User created successfully');
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+
+        function setPaymentMode(mode) {
+            currentPaymentMode = mode;
+        }
+
+        function submitDeposit() {
+            const screenshot = document.getElementById('screenshot').files[0];
+            const transactionId = document.getElementById('transactionId').value;
+            const userId = document.getElementById('userId').value;
+
+            if (screenshot && transactionId && userId) {
+                deposits.push({
+                    screenshot: URL.createObjectURL(screenshot),
+                    transactionId,
+                    userId,
+                    status: 'pending',
+                    mode: currentPaymentMode
+                });
+                alert('Deposit submitted successfully');
+                updateDepositRequests();
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+
+        function requestWithdrawal() {
+            const amount = document.getElementById('withdrawalAmount').value;
+            if (amount) {
+                withdrawals.push({
+                    amount,
+                    status: 'pending',
+                    userId: currentUser.username
+                });
+                alert('Withdrawal requested successfully');
+                updateWithdrawalRequests();
+            } else {
+                alert('Please enter amount');
+            }
+        }
+
+        function addBank() {
+            const accountName = document.getElementById('accountName').value;
+            const accountNumber = document.getElementById('accountNumber').value;
+            const bankName = document.getElementById('bankName').value;
+            const ifscCode = document.getElementById('ifscCode').value;
+
+            if (accountName && accountNumber && bankName && ifscCode) {
+                alert('Bank details added successfully');
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+
+        function updateDepositRequests() {
+            const container = document.getElementById('depositRequests');
+            container.innerHTML = deposits.map(deposit => `
+                <div class="bg-white p-4 rounded shadow">
+                    <img src="${deposit.screenshot}" class="w-32 h-32 object-cover mb-2">
+                    <p>Transaction ID: ${deposit.transactionId}</p>
+                    <p>User ID: ${deposit.userId}</p>
+                    <p>Status: ${deposit.status}</p>
+                    <p>Mode: ${deposit.mode}</p>
+                    <div class="mt-2">
+                        <button onclick="approveDeposit('${deposit.transactionId}')" class="bg-green-500 text-white px-2 py-1 rounded">Approve</button>
+                        <button onclick="rejectDeposit('${deposit.transactionId}')" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateWithdrawalRequests() {
+            const container = document.getElementById('withdrawalRequests');
+            container.innerHTML = withdrawals.map(withdrawal => `
+                <div class="bg-white p-4 rounded shadow">
+                    <p>Amount: ${withdrawal.amount}</p>
+                    <p>User ID: ${withdrawal.userId}</p>
+                    <p>Status: ${withdrawal.status}</p>
+                    <div class="mt-2">
+                        <button onclick="approveWithdrawal('${withdrawal.userId}')" class="bg-green-500 text-white px-2 py-1 rounded">Approve</button>
+                        <button onclick="rejectWithdrawal('${withdrawal.userId}')" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approveDeposit(transactionId) {
+            const deposit = deposits.find(d => d.transactionId === transactionId);
+            if (deposit) {
+                deposit.status = 'approved';
+                updateDepositRequests();
+            }
+        }
+
+        function rejectDeposit(transactionId) {
+            const deposit = deposits.find(d => d.transactionId === transactionId);
+            if (deposit) {
+                deposit.status = 'rejected';
+                updateDepositRequests();
+            }
+        }
+
+        function approveWithdrawal(userId) {
+            const withdrawal = withdrawals.find(w => w.userId === userId);
+            if (withdrawal) {
+                withdrawal.status = 'approved';
+                updateWithdrawalRequests();
+            }
+        }
+
+        function rejectWithdrawal(userId) {
+            const withdrawal = withdrawals.find(w => w.userId === userId);
+            if (withdrawal) {
+                withdrawal.status = 'rejected';
+                updateWithdrawalRequests();
+            }
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
